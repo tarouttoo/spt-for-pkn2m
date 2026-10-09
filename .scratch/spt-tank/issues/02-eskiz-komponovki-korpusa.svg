@@ -3,8 +3,8 @@
 
   <!-- ================= title ================= -->
   <text x="40" y="42" font-size="23" font-weight="bold" fill="#111">Корпус СПТ — эскиз компоновки (черновой артефакт для реакции)</text>
-  <text x="40" y="68" font-size="13" fill="#4b5563">Продольный вид. Начинка станции (ТЭН-блок, самовсасывающий фильтр, насос, арматура) — вне границ тикета и показана условно.</text>
-  <text x="40" y="86" font-size="13" fill="#4b5563">Топология — по РЭ СПТ ООО «СибСтронг» (рис. 1 и 3) и схеме подготовки топлива СПТК-400.</text>
+  <text x="40" y="68" font-size="13" fill="#4b5563">Продольный вид. Присоединения — в торцевые днища и на верхнюю/нижнюю образующую, как в РЭ СПТ (рис. 1, 3, 4).</text>
+  <text x="40" y="86" font-size="13" fill="#4b5563">Начинка станции (ТЭН-блок, самовсасывающий фильтр, насос, арматура) — вне границ тикета, показана условно.</text>
 
   <!-- ================= floor ================= -->
   <line x1="40" y1="720" x2="1000" y2="720" stroke="#111" stroke-width="3"/>
@@ -49,110 +49,107 @@
     <line x1="580" y1="-95" x2="580" y2="95" stroke="#111" stroke-width="1.6"/>
     <line x1="-72" y1="0" x2="652" y2="0" stroke="#111" stroke-width="1" stroke-dasharray="14 4 3 4"/>
 
-    <!-- nachinka: heaters -->
-    <line x1="-36" y1="56" x2="212" y2="56" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="7 5"/>
-    <line x1="-36" y1="70" x2="212" y2="70" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="7 5"/>
-    <line x1="-36" y1="84" x2="212" y2="84" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="7 5"/>
-    <text x="-30" y="45" font-size="12" fill="#2563eb">ТЭНы (начинка)</text>
-    <!-- nachinka: self-priming filter — sits on the burner outlet -->
+    <!-- nachinka: heaters, inserted from end B (right) -->
+    <line x1="66" y1="56" x2="616" y2="56" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="7 5"/>
+    <line x1="66" y1="70" x2="616" y2="70" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="7 5"/>
+    <line x1="66" y1="84" x2="610" y2="84" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="7 5"/>
+    <text x="180" y="45" font-size="12" fill="#2563eb">ТЭНы (начинка)</text>
+    <!-- nachinka: self-priming filter — mounted on the burner outlet -->
     <rect x="52" y="-85" width="116" height="47" fill="#eff6ff" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="7 5"/>
     <text x="58" y="-63" font-size="12" fill="#2563eb">фильтр</text>
     <text x="58" y="-49" font-size="12" fill="#2563eb">(начинка)</text>
 
-    <!-- pos.1 flanged TЭН-block connection, low part of end A -->
-    <rect x="-56" y="22" width="16" height="58" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
-    <rect x="-138" y="10" width="82" height="82" fill="#eff6ff" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="7 5"/>
-    <text x="-134" y="106" font-size="12" fill="#2563eb">ТЭН-блок</text>
+    <!-- pos.1 outlet to burner: nozzle in the end-A dish, upper part; filter sits on it -->
+    <rect x="-100" y="-52" width="60" height="14" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <line x1="-100" y1="-45" x2="-160" y2="-45" stroke="#111" stroke-width="1.2"/>
+    <path d="M-168,-45 l10,-5 l0,10 z" fill="#111"/>
 
-    <!-- pos.2 self-priming filter: hatch AND outlet to burner — one flanged assembly -->
-    <rect x="60" y="-113" width="80" height="18" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
-    <rect x="68" y="-129" width="64" height="16" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
-    <circle cx="76" cy="-121" r="3" fill="#ffffff" stroke="#111" stroke-width="1.2"/>
-    <circle cx="124" cy="-121" r="3" fill="#ffffff" stroke="#111" stroke-width="1.2"/>
-    <rect x="93" y="-172" width="14" height="43" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
-    <rect x="-22" y="-179" width="115" height="14" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
-    <path d="M-30,-172 l10,-5 l0,10 z" fill="#111"/>
+    <!-- pos.2 drain: nozzle in the end-A dish, lower part (lowest point) -->
+    <rect x="-100" y="66" width="70" height="14" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <rect x="-100" y="80" width="14" height="46" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <path d="M-100,126 L-86,126 L-93,140 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
+    <path d="M-100,154 L-86,154 L-93,140 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
+    <line x1="-93" y1="154" x2="-93" y2="172" stroke="#111" stroke-width="1.2"/>
+    <path d="M-93,180 l-5,-10 l10,0 z" fill="#111"/>
 
-    <!-- pos.3 drain -->
-    <rect x="63" y="95" width="14" height="28" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
-    <path d="M63,123 L77,123 L70,137 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
-    <path d="M63,141 L77,141 L70,127 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
-    <line x1="70" y1="141" x2="70" y2="166" stroke="#111" stroke-width="1.2"/>
-    <path d="M70,174 l-5,-10 l10,0 z" fill="#111"/>
+    <!-- pos.3 filling from РЕ: nozzle in the end-B dish, at axis level -->
+    <rect x="620" y="-8" width="42" height="14" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <line x1="662" y1="-1" x2="697" y2="-36" stroke="#111" stroke-width="1.2"/>
+    <path d="M705,-44 L700,-32 L688,-44 Z" fill="#111"/>
 
-    <!-- pos.4 air vent -->
-    <rect x="523" y="-160" width="14" height="65" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
-    <path d="M523,-192 L537,-192 L530,-178 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
-    <path d="M523,-162 L537,-162 L530,-176 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
-    <line x1="530" y1="-192" x2="530" y2="-216" stroke="#111" stroke-width="1.2"/>
-    <path d="M530,-224 l-5,10 l10,0 z" fill="#111"/>
+    <!-- pos.4 flanged TЭН-block connection: end-B dish, lower part -->
+    <rect x="610" y="42" width="20" height="54" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <rect x="630" y="30" width="86" height="78" fill="#eff6ff" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="7 5"/>
+    <text x="640" y="126" font-size="12" fill="#2563eb">ТЭН-блок</text>
 
-    <!-- pos.5 overflow -->
-    <rect x="612" y="-48" width="60" height="14" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
-    <rect x="658" y="-48" width="14" height="92" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <!-- pos.5 overflow: top generatrix, near end B -->
+    <rect x="453" y="-150" width="14" height="55" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <path d="M453,-180 L467,-180 L460,-166 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
+    <path d="M453,-152 L467,-152 L460,-166 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
+    <line x1="460" y1="-180" x2="460" y2="-205" stroke="#111" stroke-width="1.2"/>
+    <path d="M460,-213 l-5,10 l10,0 z" fill="#111"/>
 
-    <!-- pos.6 filling from РЕ -->
-    <rect x="433" y="-142" width="14" height="47" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
-    <path d="M433,-172 L447,-172 L440,-158 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
-    <path d="M433,-144 L447,-144 L440,-158 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
-    <line x1="440" y1="-172" x2="440" y2="-196" stroke="#111" stroke-width="1.2"/>
-    <path d="M440,-104 l-5,-12 l10,0 z" fill="#111"/>
+    <!-- pos.6 air vent: top generatrix, highest point at end B -->
+    <rect x="518" y="-160" width="14" height="65" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <path d="M518,-192 L532,-192 L525,-178 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
+    <path d="M518,-162 L532,-162 L525,-176 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
+    <line x1="525" y1="-192" x2="525" y2="-216" stroke="#111" stroke-width="1.2"/>
+    <path d="M525,-224 l-5,10 l10,0 z" fill="#111"/>
 
-    <!-- pos.7 return from burner -->
-    <rect x="363" y="-138" width="14" height="43" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
-    <path d="M363,-168 L377,-168 L370,-154 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
-    <path d="M363,-140 L377,-140 L370,-154 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
-    <line x1="370" y1="-168" x2="370" y2="-194" stroke="#111" stroke-width="1.2"/>
-    <path d="M370,-104 l-5,-12 l10,0 z" fill="#111"/>
+    <!-- pos.7 thermometer well -->
+    <line x1="250" y1="-95" x2="250" y2="-146" stroke="#111" stroke-width="7"/>
+    <rect x="241" y="-154" width="18" height="9" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
 
-    <!-- pos.8 thermometer well -->
-    <line x1="265" y1="-95" x2="265" y2="-146" stroke="#111" stroke-width="7"/>
-    <rect x="256" y="-154" width="18" height="9" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <!-- pos.8 DTS well -->
+    <line x1="190" y1="-95" x2="190" y2="-146" stroke="#111" stroke-width="7"/>
+    <rect x="181" y="-154" width="18" height="9" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
 
-    <!-- pos.9 DTS well -->
-    <line x1="200" y1="-95" x2="200" y2="-146" stroke="#111" stroke-width="7"/>
-    <rect x="191" y="-154" width="18" height="9" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <!-- pos.9 return line from burner: bottom generatrix, nearer end A -->
+    <rect x="193" y="95" width="14" height="52" fill="#d3d8de" stroke="#111" stroke-width="1.6"/>
+    <path d="M193,176 L207,176 L200,162 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
+    <path d="M193,148 L207,148 L200,162 Z" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
+    <line x1="200" y1="176" x2="200" y2="195" stroke="#111" stroke-width="1.2"/>
+    <path d="M200,101 l-5,11 l10,0 z" fill="#111"/>
 
     <!-- pos.10 earthing stud -->
-    <line x1="150" y1="95" x2="150" y2="126" stroke="#111" stroke-width="5"/>
-    <line x1="138" y1="128" x2="162" y2="128" stroke="#111" stroke-width="3"/>
-    <line x1="142" y1="135" x2="158" y2="135" stroke="#111" stroke-width="2.4"/>
-    <line x1="146" y1="141" x2="154" y2="141" stroke="#111" stroke-width="1.8"/>
+    <line x1="118" y1="95" x2="118" y2="126" stroke="#111" stroke-width="5"/>
+    <line x1="106" y1="128" x2="130" y2="128" stroke="#111" stroke-width="3"/>
+    <line x1="110" y1="135" x2="126" y2="135" stroke="#111" stroke-width="2.4"/>
+    <line x1="114" y1="141" x2="122" y2="141" stroke="#111" stroke-width="1.8"/>
   </g>
 
   <!-- ================= annotations ================= -->
-  <text x="150" y="264" font-size="13" fill="#374151">к горелке</text>
-  <text x="858" y="176" font-size="13" fill="#374151">в атмосферу</text>
-  <text x="676" y="248" font-size="13" fill="#374151">от горелки</text>
-  <text x="752" y="202" font-size="13" fill="#374151">из РЕ</text>
-  <line x1="562" y1="566" x2="612" y2="524" stroke="#111" stroke-width="1"/>
-  <text x="562" y="580" font-size="13" fill="#374151">теплоизоляция + кожух (тикет 03)</text>
+  <text x="16" y="402" font-size="13" fill="#374151">к горелке</text>
+  <text x="836" y="150" font-size="13" fill="#374151">в атмосферу</text>
+  <text x="768" y="190" font-size="13" fill="#374151">перелив</text>
+  <text x="962" y="302" font-size="13" fill="#374151">из РЕ</text>
+  <text x="566" y="606" font-size="13" fill="#374151">от горелки</text>
 
   <!-- ================= position badges ================= -->
   <g>
-    <circle cx="155" cy="425" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="155" y="430" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">1</text>
-    <circle cx="325" cy="300" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="325" y="305" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">2</text>
-    <circle cx="381" cy="612" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="381" y="617" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">3</text>
-    <circle cx="815" cy="172" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="815" y="177" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">4</text>
-    <circle cx="967" cy="320" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="967" y="325" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">5</text>
-    <circle cx="726" cy="198" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="726" y="203" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">6</text>
-    <circle cx="657" cy="208" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="657" y="213" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">7</text>
-    <circle cx="554" cy="240" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="554" y="245" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">8</text>
-    <circle cx="489" cy="245" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="489" y="250" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">9</text>
-    <circle cx="452" cy="580" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="452" y="585" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">10</text>
+    <circle cx="170" cy="362" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="170" y="367" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">1</text>
+    <circle cx="150" cy="600" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="150" y="605" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">2</text>
+    <circle cx="938" cy="292" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="938" y="297" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">3</text>
+    <circle cx="944" cy="512" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="944" y="517" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">4</text>
+    <circle cx="744" cy="158" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="744" y="163" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">5</text>
+    <circle cx="808" cy="145" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="808" y="150" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">6</text>
+    <circle cx="539" cy="238" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="539" y="243" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">7</text>
+    <circle cx="479" cy="242" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="479" y="247" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">8</text>
+    <circle cx="546" cy="600" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="546" y="605" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">9</text>
+    <circle cx="398" cy="590" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="398" y="595" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">10</text>
     <circle cx="340" cy="688" r="14" fill="#ffffff" stroke="#111" stroke-width="1.6"/><text x="340" y="693" font-size="14" font-weight="bold" text-anchor="middle" fill="#111">11</text>
   </g>
   <g stroke="#111" stroke-width="1" fill="none">
-    <line x1="155" y1="439" x2="186" y2="452"/>
-    <line x1="339" y1="303" x2="355" y2="320"/>
-    <line x1="381" y1="598" x2="380" y2="586"/>
-    <line x1="815" y1="186" x2="816" y2="192"/>
-    <line x1="953" y1="320" x2="941" y2="336"/>
-    <line x1="726" y1="212" x2="727" y2="219"/>
-    <line x1="657" y1="222" x2="658" y2="229"/>
-    <line x1="554" y1="254" x2="554" y2="261"/>
-    <line x1="489" y1="259" x2="489" y2="265"/>
-    <line x1="452" y1="566" x2="450" y2="547"/>
+    <line x1="170" y1="376" x2="185" y2="386"/>
+    <line x1="150" y1="586" x2="196" y2="560"/>
+    <line x1="938" y1="306" x2="946" y2="330"/>
+    <line x1="944" y1="498" x2="936" y2="478"/>
+    <line x1="744" y1="172" x2="748" y2="186"/>
+    <line x1="808" y1="159" x2="812" y2="172"/>
+    <line x1="539" y1="252" x2="539" y2="259"/>
+    <line x1="479" y1="256" x2="479" y2="263"/>
+    <line x1="546" y1="586" x2="520" y2="570"/>
+    <line x1="398" y1="576" x2="416" y2="556"/>
     <line x1="340" y1="702" x2="360" y2="712"/>
   </g>
 
@@ -160,36 +157,36 @@
   <rect x="1060" y="70" width="360" height="770" rx="10" fill="#fafafa" stroke="#cbd5e1"/>
   <text x="1080" y="100" font-size="17" font-weight="bold" fill="#111">Позиции</text>
   <g font-size="13" fill="#374151">
-    <text x="1080" y="132">1 — ответный фланец под ТЭН-блок</text>
-    <text x="1080" y="160">2 — фильтр = выход к горелке, DN25</text>
-    <text x="1080" y="188">3 — дренаж осадка, DN15</text>
-    <text x="1080" y="216">4 — воздухоотвод (связь с атмосферой), DN15</text>
+    <text x="1080" y="132">1 — выход к горелке (в днище A), DN25</text>
+    <text x="1080" y="160">2 — дренаж осадка (в днище A), DN15</text>
+    <text x="1080" y="188">3 — заполнение из РЕ (в днище B), DN20</text>
+    <text x="1080" y="216">4 — ответный фланец под ТЭН-блок (днище B)</text>
     <text x="1080" y="244">5 — перелив, DN20</text>
-    <text x="1080" y="272">6 — вход топлива из РЕ (заполнение), DN20</text>
-    <text x="1080" y="300">7 — обратка от горелки, DN20</text>
-    <text x="1080" y="328">8 — гильза термометра</text>
-    <text x="1080" y="356">9 — гильза датчика ДТС</text>
+    <text x="1080" y="272">6 — воздухоотвод (связь с атмосферой), DN15</text>
+    <text x="1080" y="300">7 — гильза термометра</text>
+    <text x="1080" y="328">8 — гильза датчика ДТС</text>
+    <text x="1080" y="356">9 — обратка от горелки (вниз), DN20</text>
     <text x="1080" y="384">10 — заземление (шпилька М12 — предложение)</text>
     <text x="1080" y="412">11 — опоры: 4 приварные лапы (2 + 2)</text>
   </g>
   <text x="1080" y="456" font-size="15" font-weight="bold" fill="#111">Примечания</text>
   <g font-size="12" fill="#6b7280">
-    <text x="1080" y="482">• Самовсасывающий фильтр стоит на выходе к</text>
-    <text x="1096" y="500">горелке: поз. 2 — один фланцевый узел</text>
-    <text x="1096" y="518">(посадочное место фильтра + присоединение</text>
-    <text x="1096" y="536">топливопровода горелки).</text>
-    <text x="1080" y="562">• Уклон 30…50 мм — по РЭ СПТ: выше торец</text>
-    <text x="1096" y="580">со стороны крана отведения воздуха, ниже —</text>
-    <text x="1096" y="598">со стороны выхода топлива на горелку.</text>
-    <text x="1080" y="624">• Пропорции, диаметр и длина условны:</text>
-    <text x="1096" y="642">база ~70 л, габарит и толщина s — тикет 05.</text>
-    <text x="1080" y="668">• Теплоизоляция и кожух (штриховая линия) —</text>
-    <text x="1096" y="686">тикет 03; показаны схематично как</text>
-    <text x="1096" y="704">габаритная граница.</text>
-    <text x="1080" y="730">• Связь с атмосферой (поз. 4) и перелив</text>
-    <text x="1096" y="748">(поз. 5) — требования тикета 12.</text>
-    <text x="1080" y="774">• Начинка (ТЭН-блок, фильтр, насос, арматура)</text>
-    <text x="1096" y="792">— вне границ тикета (map.md, «Out of scope»);</text>
-    <text x="1096" y="810">показана условно.</text>
+    <text x="1080" y="482">• Фильтр стоит на выходе к горелке: поз. 1 —</text>
+    <text x="1096" y="500">патрубок в днище торца A, самовсасывающий</text>
+    <text x="1096" y="518">фильтр — изнутри на нём; снятие — через</text>
+    <text x="1096" y="536">этот узел.</text>
+    <text x="1080" y="562">• ТЭНы вставляются с торца B (поз. 4) и идут</text>
+    <text x="1096" y="580">вдоль корпуса в нижней части.</text>
+    <text x="1080" y="606">• Уклон 30…50 мм — по РЭ СПТ: выше торец</text>
+    <text x="1096" y="624">со стороны крана отведения воздуха (B),</text>
+    <text x="1096" y="642">ниже — со стороны выхода к горелке (A).</text>
+    <text x="1080" y="668">• Пропорции, диаметр и длина условны:</text>
+    <text x="1096" y="686">база ~70 л, габарит и толщина s — тикет 05.</text>
+    <text x="1080" y="712">• Теплоизоляция и кожух (штриховая линия) —</text>
+    <text x="1096" y="730">тикет 03; показаны как габаритная граница.</text>
+    <text x="1080" y="756">• Связь с атмосферой (поз. 6) и перелив</text>
+    <text x="1096" y="774">(поз. 5) — требования тикета 12.</text>
+    <text x="1080" y="800">• Начинка вне границ тикета (map.md,</text>
+    <text x="1096" y="818">«Out of scope»); показана условно.</text>
   </g>
 </svg>
