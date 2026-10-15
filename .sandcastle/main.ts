@@ -1,29 +1,18 @@
-import { existsSync } from "node:fs";
 import { homedir } from "node:os";
-import { basename, dirname } from "node:path";
 import { run, pi } from "@ai-hero/sandcastle";
 import { podman } from "@ai-hero/sandcastle/sandboxes/podman";
 
-// Issue-driven AFK run: implement one local-markdown issue from
-// .scratch/<feature>/issues/ on its own branch.
-// Usage: npx tsx .sandcastle/main.ts .scratch/spt-tank/issues/05-foo.md
-//        ISSUE_PATH=.scratch/... npx tsx .sandcastle/main.ts
+// Issue-driven AFK run: implement one GitHub issue on its own branch.
+// Usage: npx tsx .sandcastle/main.ts <issue-number>
+//        ISSUE_NUMBER=42 npx tsx .sandcastle/main.ts
 
-const issuePath = process.argv[2] ?? process.env.ISSUE_PATH;
-const validPath =
-  issuePath &&
-  /^\.scratch\/[^/]+\/issues\/[^/]+\.md$/.test(issuePath) &&
-  existsSync(issuePath);
-if (!validPath) {
-  console.error(
-    "Usage: npx tsx .sandcastle/main.ts .scratch/<feature>/issues/<NN>-<slug>.md",
-  );
+const issueNumber = process.argv[2] ?? process.env.ISSUE_NUMBER;
+if (!issueNumber || !/^\d+$/.test(issueNumber)) {
+  console.error("Usage: npx tsx .sandcastle/main.ts <issue-number>");
   process.exit(1);
 }
 
-const slug = basename(issuePath, ".md");
-const feature = basename(dirname(dirname(issuePath)));
-const branch = `agent/${feature}/${slug}`;
+const branch = `agent/issue-${issueNumber}`;
 
 // Fail the run up front if the sandbox would start without a credential it
 // needs — the agent would otherwise fail confusingly mid-task.
@@ -36,14 +25,15 @@ function requiredEnvVar(key: string): string {
   return value;
 }
 
-// Explicit allowlist: only these variables enter the container. Issues are
-// local markdown files, so the sandboxed agent needs no gh/GitHub token.
+// Explicit allowlist: only these variables enter the container.
 const sandboxEnv = {
+  GH_TOKEN: requiredEnvVar("GH_TOKEN"),
+  GH_REPO: requiredEnvVar("GH_REPO"),
   ZAI_API_KEY: requiredEnvVar("ZAI_API_KEY"),
 };
 
 const result = await run({
-  name: `implement-${slug}`,
+  name: `implement-issue-${issueNumber}`,
   agent: pi("glm-5.3-flash"),
   // Rootless Podman, in every environment. There is no noSandbox fallback on
   // purpose — a broken sandbox must fail the run. The image must be built
@@ -60,7 +50,7 @@ const result = await run({
   }),
   branchStrategy: { type: "branch", branch },
   promptFile: "./.sandcastle/prompt.md",
-  promptArgs: { ISSUE_PATH: issuePath, BRANCH: branch },
+  promptArgs: { ISSUE_NUMBER: issueNumber, BRANCH: branch },
   maxIterations: 3,
 });
 

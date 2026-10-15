@@ -2,7 +2,7 @@
 
 ### Issue tracker
 
-Issues and specs for this repo live as markdown files under `.scratch/<feature-slug>/`. See `docs/agents/issue-tracker.md`.
+Issues and specs for this repo live as GitHub issues. Use the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
@@ -14,4 +14,4 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 
 ### Agent CI pipeline
 
-AFK agent runs in GitHub Actions, one issue file per run: set `Status: ready-for-agent` in a `.scratch/<feature>/issues/` file and push, or dispatch the `Agent Implement` workflow manually. See `docs/agents/ci.md`.
+AFK agent runs in GitHub Actions, one issue per run: label an issue `ready-for-agent`, or dispatch the `Agent Implement` workflow manually with an issue number. See `docs/agents/ci.md`.
