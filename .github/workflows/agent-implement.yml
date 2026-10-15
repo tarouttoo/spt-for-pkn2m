@@ -1,0 +1,176 @@
+name: Agent Implement
+
+# Issue-driven AFK run (phase 1: single agent, no planner, no parallelism).
+# Issues in this repo are local markdown files (.scratch/<feature>/issues/),
+# so "labeling an issue" means setting `Status: ready-for-agent` in the file.
+# - Manual: Actions → Agent Implement → Run workflow → issue file path
+# - Automatic: push to master that flips an issue file to ready-for-agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_path:
+        description: "Issue file path, e.g. .scratch/spt-tank/issues/05-geometriya-i-tolshchina-stenki.md"
+        required: true
+        type: string
+  push:
+    branches: [master]
+    paths:
+      - ".scratch/*/issues/*.md"
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: agent-implement-${{ github.event_name == 'workflow_dispatch' && inputs.issue_path || github.event.after }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    # Push trigger only: find the first issue file whose new content is
+    # ready-for-agent. Dispatch passes the path straight through.
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      issue_path: ${{ steps.detect.outputs.issue_path }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # diff github.event.before against the new head
+
+      - id: detect
+        run: |
+          BEFORE='${{ github.event.before }}'
+          if [ "${#BEFORE}" -eq 40 ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] \
+             && git cat-file -e "$BEFORE" 2>/dev/null; then
+            CHANGED=$(git diff --name-only "$BEFORE" "$GITHUB_SHA" -- '.scratch/*/issues/*.md')
+          else
+            # New branch: no useful base — scan every tracked issue file.
+            CHANGED=$(git ls-files '.scratch/*/issues/*.md')
+          fi
+          MATCH=""
+          ALSO=""
+          for f in $CHANGED; do
+            grep -qiE '^Status: *ready-for-agent' "$f" || continue
+            if [ -z "$MATCH" ]; then MATCH="$f"; else ALSO="$ALSO $f"; fi
+          done
+          echo "issue_path=$MATCH" >> "$GITHUB_OUTPUT"
+          if [ -n "$ALSO" ]; then
+            echo "::notice::Also ready-for-agent (implement in a later run):$ALSO"
+          fi
+
+  implement:
+    needs: resolve
+    if: github.event_name == 'workflow_dispatch' || needs.resolve.outputs.issue_path != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      ZAI_API_KEY: ${{ secrets.ZAI_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Export issue path
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ISSUE_PATH=${{ inputs.issue_path }}" >> "$GITHUB_ENV"
+          else
+            echo "ISSUE_PATH=${{ needs.resolve.outputs.issue_path }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Derive branch name
+        run: |
+          SLUG=$(basename "$ISSUE_PATH" .md)
+          FEATURE=$(basename "$(dirname "$(dirname "$ISSUE_PATH")")")
+          echo "BRANCH=agent/${FEATURE}/${SLUG}" >> "$GITHUB_ENV"
+
+      - name: Fail early if the issue file is missing or not ready-for-agent
+        run: |
+          test -f "$ISSUE_PATH" || { echo "::error::No such file: $ISSUE_PATH"; exit 1; }
+          grep -qiE '^Status: *ready-for-agent' "$ISSUE_PATH" \
+            || { echo "::error::$ISSUE_PATH is not Status: ready-for-agent"; exit 1; }
+
+      - name: Install Podman (sandbox engine)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+          # Rootless podman needs subordinate uid/gid ranges for the runner user.
+          U=$(id -un)
+          grep -q "^${U}:" /etc/subuid || echo "${U}:100000:65536" | sudo tee -a /etc/subuid
+          grep -q "^${U}:" /etc/subgid || echo "${U}:100000:65536" | sudo tee -a /etc/subgid
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install -g @earendil-works/pi-coding-agent
+
+      - name: Configure pi (zai auth + models)
+        run: |
+          mkdir -p ~/.pi/agent
+          test -n "$ZAI_API_KEY" || { echo "ZAI_API_KEY secret is not set"; exit 1; }
+          printf '{"zai":{"type":"api_key","key":"%s"}}\n' "$ZAI_API_KEY" > ~/.pi/agent/auth.json
+          chmod 600 ~/.pi/agent/auth.json
+          cp .sandcastle/pi/models-store.json .sandcastle/pi/settings.json ~/.pi/agent/
+
+      - name: git identity
+        run: |
+          git config user.name "sandcastle-agent"
+          git config user.email "sandcastle-agent@users.noreply.github.com"
+
+      - name: Build sandbox image
+        # Image name must match sandcastle's defaultImageName: sandcastle:<checkout
+        # dirname>. A missing image makes main.ts fail the run — no unsandboxed fallback.
+        run: podman build -t "sandcastle:$(basename "$GITHUB_WORKSPACE")" -f .sandcastle/Containerfile .sandcastle
+
+      - name: Implement issue
+        run: npx tsx .sandcastle/main.ts "$ISSUE_PATH"
+
+      - name: Push branch
+        run: git push -u origin "$BRANCH"
+
+      - name: Open pull request
+        run: |
+          TITLE=$(grep -m1 '^# ' "$ISSUE_PATH" | sed 's/^#* *//')
+          [ -n "$TITLE" ] || TITLE="$ISSUE_PATH"
+          # Only skip when an OPEN PR exists — gh pr view also matches closed PRs.
+          OPEN_PRS=$(gh pr list --head "$BRANCH" --state open --json number --jq length)
+          if [ "$OPEN_PRS" != "0" ]; then
+            echo "Open PR for $BRANCH already exists, skipping"
+            exit 0
+          fi
+          # Agent drafts the body (pr skill) into .sandcastle/pr-body.md — but it
+          # works in a sandcastle worktree (.sandcastle/worktrees/<slug>/), so the
+          # file lands there, not in this checkout. Check both; canned fallback last.
+          BODY_FILE=$(mktemp)
+          BODY_SRC=""
+          for f in .sandcastle/pr-body.md .sandcastle/worktrees/*/.sandcastle/pr-body.md; do
+            if [ -f "$f" ]; then BODY_SRC="$f"; break; fi
+          done
+          if [ -n "$BODY_SRC" ]; then
+            echo "Using agent-drafted body from $BODY_SRC"
+            { cat "$BODY_SRC"; printf '\n---\n\nImplements `%s`.\n' "$ISSUE_PATH"; } > "$BODY_FILE"
+          else
+            echo "No agent PR body found; using canned fallback"
+            printf 'Implements `%s`.\n\n(Agent did not write a PR body — see the `## Comments` report in the issue file on the branch.)\n' "$ISSUE_PATH" > "$BODY_FILE"
+          fi
+          # Debuggability: show what the agent left uncommitted in its worktree.
+          for d in .sandcastle/worktrees/*/; do
+            [ -d "$d" ] || continue
+            echo "Leftover in worktree $d:"
+            git -C "$d" status --porcelain || true
+          done
+          gh pr create \
+            --base master \
+            --head "$BRANCH" \
+            --title "agent: ${TITLE} (${ISSUE_PATH})" \
+            --body-file "$BODY_FILE"

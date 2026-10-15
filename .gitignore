@@ -1,0 +1,7 @@
+node_modules/
+.sandcastle/.env
+.sandcastle/logs/
+.sandcastle/worktrees/
+__pycache__/
+*.pyc
+*:Zone.Identifier

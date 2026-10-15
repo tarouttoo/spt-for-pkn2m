@@ -11,3 +11,7 @@ The five canonical triage roles (`needs-triage`, `needs-info`, `ready-for-agent`
 ### Domain docs
 
 Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+### Agent CI pipeline
+
+AFK agent runs in GitHub Actions, one issue file per run: set `Status: ready-for-agent` in a `.scratch/<feature>/issues/` file and push, or dispatch the `Agent Implement` workflow manually. See `docs/agents/ci.md`.
