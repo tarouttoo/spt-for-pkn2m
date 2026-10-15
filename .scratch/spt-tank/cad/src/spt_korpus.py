@@ -49,6 +49,11 @@ def _ell_head(radius: float, depth: float, flange: float, apex_x: float,
     заваривается цилиндром-заплаткой радиусом 10 (внутри полости, на прочность
     и вид не влияет).
     """
+    # фикс #22: заплатка раньше заканчивалась ровно в плоскости полюса купола
+    # (выступала сквозь купол на ~12 мкм, лишние вершины ломали чек уклона);
+    # теперь — на 0.2 мм за естественной вершиной offset-профиля, сталь на
+    # полюсе ≈3.8 мм (запас до наружной поверхности ≈ S_WALL − 0.2)
+    plug_end = (depth - offset) + 0.2 if offset else 0.0
     with bd.BuildSketch(bd.Plane.XZ) as sk:
         with bd.BuildLine():
             bd.EllipticalCenterArc((0, 0), depth, radius, 0, arc_size=90)
@@ -62,8 +67,8 @@ def _ell_head(radius: float, depth: float, flange: float, apex_x: float,
         bd.add(sk.face())
         bd.revolve(axis=bd.Axis.X)
         if offset:  # заплатка осевого отверстия от offset'а линии закрытия
-            bd.add(bd.Cylinder(10.0, depth + flange).moved(
-                bd.Location(((depth - flange) / 2.0, 0, 0), (0, 90, 0))))
+            bd.add(bd.Cylinder(10.0, plug_end + flange).moved(
+                bd.Location(((plug_end - flange) / 2.0, 0, 0), (0, 90, 0))))
     head = part.part
     if flip:  # купол в −X: вершина в apex_x, отбортовка к x=apex_x+depth+flange
         head = bd.Rot(0, 0, 180) * head
@@ -82,10 +87,16 @@ def _vessel_outer() -> bd.Shape:
 
 
 def _vessel_cavity() -> bd.Shape:
-    cyl = bd.Cylinder(R_IN, L_SHELL + 2 * (HEAD_FLANGE + 30)).moved(
+    # фикс #22: цилиндр полости длиной обечайка + две отбортовки — торец в
+    # плоскости привалки купола (x=±195). Раньше вылет до x=±225 прожигал
+    # «плечо» днища там, где наружный радиус купола опускается ниже R_IN
+    # (кольцевые зазоры со стенкой от x≈±215.4, полость сообщалась снаружи,
+    # а стенки днищ отваливались отдельными телами).
+    cyl = bd.Cylinder(R_IN, L_SHELL + 2 * HEAD_FLANGE).moved(
         bd.Location((0, 0, 0), (0, 90, 0)))
     # фикс: было масштабирование эллипса (стенка вырождалась к 0 на вершине);
-    # теперь эквидистанта профиля наружного днища на S_WALL (дефект 2)
+    # теперь эквидистанта профиля наружного днища на S_WALL (дефект 2).
+    # Стык цилиндра с отбортовкой полости — касательный, общий радиус R_IN.
     head_a = _ell_head(R_OUT, HEAD_DEPTH, HEAD_FLANGE, -TIP_X, flip=True,
                        offset=S_WALL)
     head_b = _ell_head(R_OUT, HEAD_DEPTH, HEAD_FLANGE, TIP_X, flip=False,
@@ -220,14 +231,20 @@ def spt_korpus() -> bd.Shape:
     with bd.BuildPart() as p_filtr:
         bd.add(bd.Cylinder(45.0, 150.0).moved(
             bd.Location((-165.0, -90.0, 90.0), (0, 90, 0))))
+        # канал стакана фильтра: mode — аргумент add, не moved (иначе падение
+        # регенерации)
         bd.add(bd.Cylinder(22.5, 160.0).moved(
-            bd.Location((-160.0, -90.0, 90.0), (0, 90, 0)), mode=bd.Mode.SUBTRACT))
+            bd.Location((-160.0, -90.0, 90.0), (0, 90, 0))),
+            mode=bd.Mode.SUBTRACT)
     filtr = p_filtr.part
     # фикс компоновки (рация 2026-10-15): дно коробки на образующей z=210 (было
     # 195 — утоплена в сталь) и сдвиг от гильзы ДТС (поз. 8): центр x=25, ширина
     # 130 (было 150 при +10 мм — упиралась во фланец воздухоотвода 6, остался бы
     # нахлёст 2.5 мм; 130 даёт 12 мм к гильзе 8 и 12.5 мм к фланцу 6) (дефект 7)
-    korobka = bd.Box(130.0, 100.0, 70.0).moved(bd.Location((25.0, 0.0, 245.0)))
+    # фикс #22: глубина 80 (было 100) — фланец перелива 5 (⌀105 при y=−105)
+    # доставал до y=−52.5, зазор к стенке коробки был 2.5 мм (<10 для монтажа);
+    # при y∈[−40;40] зазор 12.5 мм, остальные записанные зазоры не меняются
+    korobka = bd.Box(130.0, 80.0, 70.0).moved(bd.Location((25.0, 0.0, 245.0)))
     term_stem = _cyl_along("z", (-115.0, 0.0), 250.0, 330.0, 8.0)
     term_dial = _cyl_along("z", (-115.0, 0.0), 330.0, 338.0, 60.0)
     dts = _cyl_along("z", (-65.0, 0.0), 250.0, 300.0, 6.0)
