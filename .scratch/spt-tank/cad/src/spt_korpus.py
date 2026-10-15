@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Корпус СПТ (базовый размер ~70 л) — компоновочный прототип.
 
-Артефакт тикета .scratch/spt-tank/issues/20-cad-model-korpusa.md.
+Артефакт тикета #21 (карта усилия — issue #1 с лейблом wayfinder:map).
 ВСЕ размеры — заглушки (тикет 05 «геометрия и толщина стенки» открыт):
 принято D420, стенка 4 мм, обечайка 310 мм, днища эллиптические 2:1 ГОСТ 6533
 с отбортовкой 40 мм, уклон 40 мм (торец B выше), изоляция+кожух 40+1 мм.
@@ -40,10 +40,14 @@ ALPHA_DEG = ALPHA * 180.0 / 3.141592653589793
 
 # --- Фабрики ----------------------------------------------------------------
 def _ell_head(radius: float, depth: float, flange: float, apex_x: float,
-              flip: bool) -> bd.Shape:
+              flip: bool, offset: float = 0.0) -> bd.Shape:
     """Днище (купол + отбортовка) вращением профиля вокруг оси X.
 
     apex_x — координата вершины купола; flip=True — купол смотрит в −X.
+    offset > 0 — эквидистантное сжатие профиля внутрь на offset (стенка днища);
+    линия закрытия по оси после offset даёт осевое отверстие ~2*offset, оно
+    заваривается цилиндром-заплаткой радиусом 10 (внутри полости, на прочность
+    и вид не влияет).
     """
     with bd.BuildSketch(bd.Plane.XZ) as sk:
         with bd.BuildLine():
@@ -52,9 +56,14 @@ def _ell_head(radius: float, depth: float, flange: float, apex_x: float,
             bd.Line((-flange, radius), (-flange, 0))
             bd.Line((-flange, 0), (depth, 0))
         bd.make_face()
+        if offset:
+            bd.offset(amount=-offset, kind=bd.Kind.ARC)  # эквидистанта профиля
     with bd.BuildPart() as part:
         bd.add(sk.face())
         bd.revolve(axis=bd.Axis.X)
+        if offset:  # заплатка осевого отверстия от offset'а линии закрытия
+            bd.add(bd.Cylinder(10.0, depth + flange).moved(
+                bd.Location(((depth - flange) / 2.0, 0, 0), (0, 90, 0))))
     head = part.part
     if flip:  # купол в −X: вершина в apex_x, отбортовка к x=apex_x+depth+flange
         head = bd.Rot(0, 0, 180) * head
@@ -67,16 +76,20 @@ def _ell_head(radius: float, depth: float, flange: float, apex_x: float,
 def _vessel_outer() -> bd.Shape:
     shell = bd.Cylinder(R_OUT, L_SHELL).moved(bd.Location((0, 0, 0), (0, 90, 0)))
     head_a = _ell_head(R_OUT, HEAD_DEPTH, HEAD_FLANGE, -TIP_X, flip=True)
-    head_b = _ell_head(R_IN, HEAD_DEPTH, HEAD_FLANGE, TIP_X, flip=False)
+    # фикс: было R_IN — торец B получал ⌀412 вместо ⌀420 (дефект 1 из чека)
+    head_b = _ell_head(R_OUT, HEAD_DEPTH, HEAD_FLANGE, TIP_X, flip=False)
     return shell.fuse(head_a, head_b)
 
 
 def _vessel_cavity() -> bd.Shape:
     cyl = bd.Cylinder(R_IN, L_SHELL + 2 * (HEAD_FLANGE + 30)).moved(
         bd.Location((0, 0, 0), (0, 90, 0)))
-    d_in = HEAD_DEPTH - S_WALL
-    head_a = _ell_head(R_IN, d_in, HEAD_FLANGE, -TIP_X, flip=True)
-    head_b = _ell_head(R_IN, d_in, HEAD_FLANGE, TIP_X, flip=False)
+    # фикс: было масштабирование эллипса (стенка вырождалась к 0 на вершине);
+    # теперь эквидистанта профиля наружного днища на S_WALL (дефект 2)
+    head_a = _ell_head(R_OUT, HEAD_DEPTH, HEAD_FLANGE, -TIP_X, flip=True,
+                       offset=S_WALL)
+    head_b = _ell_head(R_OUT, HEAD_DEPTH, HEAD_FLANGE, TIP_X, flip=False,
+                       offset=S_WALL)
     return cyl.fuse(head_a, head_b)
 
 
@@ -170,7 +183,9 @@ def spt_korpus() -> bd.Shape:
         if bore is not None:
             bores.append(bore)
         ins_cutters.append(ins)
-    korpus_local = shell.cut(*bores).fuse(*nozzles)
+    # фикс: приварить патрубки ДО вырезания каналов — иначе цельная труба
+    # глушила собственный канал (дефект 4)
+    korpus_local = shell.fuse(*nozzles).cut(*bores)
 
     # Изоляция + кожух (заглушка тикета 03)
     env_r, env_d = R_OUT + INS_T, HEAD_DEPTH + INS_T
@@ -186,8 +201,8 @@ def spt_korpus() -> bd.Shape:
         bd.add(_ell_head(env_r + SKIN_T, env_d + SKIN_T, HEAD_FLANGE + 5,
                          TIP_X + INS_T + SKIN_T, flip=False))
     envelope2 = p_env2.part
-    # вырез под коробку соединительную (начинка на верхней образующей)
-    box_cut = bd.Box(170.0, 120.0, 120.0).moved(bd.Location((20.0, 0.0, 250.0)))
+    # вырез под коробку соединительную — следует за коробкой (ниже)
+    box_cut = bd.Box(170.0, 120.0, 120.0).moved(bd.Location((25.0, 0.0, 265.0)))
     izol_local = (envelope - _vessel_outer() - box_cut).cut(*ins_cutters)
     kozhuh_local = (envelope2 - envelope).cut(*ins_cutters, box_cut)
 
@@ -196,9 +211,23 @@ def spt_korpus() -> bd.Shape:
         _cyl_along("x", (y, z), 180.0, -180.0, 16.0)
         for y, z in ((-50.0, -120.0), (0.0, -145.0), (50.0, -120.0))
     ]
-    ten_hub = _cyl_along("x", (0.0, -130.0), 200.0, 190.0, 100.0)
-    filtr = _cyl_along("x", (-90.0, 90.0), -240.0, -90.0, 90.0)
-    korobka = bd.Box(150.0, 100.0, 70.0).moved(bd.Location((20.0, 0.0, 230.0)))
+    # фикс: было 190..200 — траверса входила на 5 мм в трубу патрубка 4 (от x=195);
+    # теперь 178..188, зазор до трубы 7 мм (дефект 6)
+    ten_hub = _cyl_along("x", (0.0, -130.0), 188.0, 178.0, 100.0)
+    # фикс: фильтр надет coaxially на трубу патрубка 1 (⌀34) — нужен канал 45
+    # (зазор 5.5 мм), иначе труба глухо входит в сплошной цилиндр (дефект 5,
+    # 36317 мм³ пересечения)
+    with bd.BuildPart() as p_filtr:
+        bd.add(bd.Cylinder(45.0, 150.0).moved(
+            bd.Location((-165.0, -90.0, 90.0), (0, 90, 0))))
+        bd.add(bd.Cylinder(22.5, 160.0).moved(
+            bd.Location((-160.0, -90.0, 90.0), (0, 90, 0)), mode=bd.Mode.SUBTRACT))
+    filtr = p_filtr.part
+    # фикс компоновки (рация 2026-10-15): дно коробки на образующей z=210 (было
+    # 195 — утоплена в сталь) и сдвиг от гильзы ДТС (поз. 8): центр x=25, ширина
+    # 130 (было 150 при +10 мм — упиралась во фланец воздухоотвода 6, остался бы
+    # нахлёст 2.5 мм; 130 даёт 12 мм к гильзе 8 и 12.5 мм к фланцу 6) (дефект 7)
+    korobka = bd.Box(130.0, 100.0, 70.0).moved(bd.Location((25.0, 0.0, 245.0)))
     term_stem = _cyl_along("z", (-115.0, 0.0), 250.0, 330.0, 8.0)
     term_dial = _cyl_along("z", (-115.0, 0.0), 330.0, 338.0, 60.0)
     dts = _cyl_along("z", (-65.0, 0.0), 250.0, 300.0, 6.0)

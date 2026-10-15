@@ -182,6 +182,28 @@ def main() -> int:
         check(f"virez_kozhuh__{pos}", best >= 5.0,
               f"зазор {best:.1f} мм (расчётный ~10, мин. 5)")
 
+    # --- 5. Единство корпуса и открытые каналы ------------------------------
+    # фикс дефекта 3: корпус — одно тело, а не рассыпанные патрубки
+    check("korpus_edinoe_telo", len(layers["korpus"]) == 1,
+          f"тел в слое korpus: {len(layers['korpus'])} (цель 1)")
+
+    # фикс дефекта 4: канал каждого патрубка открыт по всей длине —
+    # точки на оси не лежат в стали
+    for n in m.NOZZLES:
+        if not n["bore"] > 0:
+            continue
+        t0, t1 = n["span"]
+        blocked = []
+        for i in range(1, 20):
+            t = t0 + (t1 - t0) * i / 20.0
+            pt = to_world(bd.Vertex(*m._along(n["axis"], n["at"], t)))
+            d = min(closest_points(pt, s).distance for s in layers["korpus"])
+            if d < 1.0:
+                blocked.append(round(t, 1))
+        check(f"kanal_otkryt_{n['pos']:02d}", not blocked,
+              ("перекрыт на t=" + ", ".join(map(str, blocked))) if blocked
+              else "ось свободна по всей длине")
+
     print("OK" if ok else "PROVERKI NE PROSHLI")
     return 0 if ok else 1
 
